@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://chparcels:chile.,P2019@localhost:5432/chparcels'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://chparcels:chile.,P2019@127.0.0.1:5432/chparcels'
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
