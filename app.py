@@ -22,7 +22,6 @@ class Cdr(db.Model):
     dura = db.Column(db.Integer, nullable=False, default=0)
     bill = db.Column(db.Integer, nullable=False)
     disp = db.Column(db.String(28), nullable=False)
-    acc = db.Column(db.String(28), nullable=False)
     audio = db.Column(db.String(256), nullable=True)
 
 
@@ -38,7 +37,6 @@ class CdrSchema(ma.Schema):
         			'dura',
         			'bill',
         			'disp',
-        			'acc',
         			'audio')
 
 
