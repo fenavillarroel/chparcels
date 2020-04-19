@@ -1,10 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS
 import os
 
 
 app = Flask(__name__)
+
+CORS(app)
+
 app.config['SECRET_KEY'] = '9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://chparcels:chile.,P2019@127.0.0.1:5432/chparcels'
 
@@ -43,9 +47,15 @@ class CdrSchema(ma.Schema):
 cdr_schema = CdrSchema()
 cdrs_schema = CdrSchema(many=True)
 
-@app.route("/api", methods=["GET"])
-def home():
-    return "<p>Hello Api</api>"
+@app.route("/api/v1/allcalls", methods=["POST"])
+def getcalls():
+    data=request.get_json()
+    fechaStart=data['inicio']
+    fechaEnd=data['fin']
+    call = Cdr.query.order_by(Cdr.id.desc()).filter(Cdr.inicio>=fechaStart,Cdr.inicio<=fechaEnd).all()
+    data = cdrs_schema.dump(call)
+
+    return {"data":data}, 200
 
 # endpoint to get user detail by id
 @app.route("/api/v1/llamadas/<num>", methods=["GET"])
