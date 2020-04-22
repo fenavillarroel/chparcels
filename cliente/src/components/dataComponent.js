@@ -73,7 +73,7 @@ export default function DataComponent() {
                     <Grid item xs={12}>
                         <NavBar />
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={12} sm={3}>
                         <Paper className={classes.paper}>
                           <Card className={classes.root} variant="outlined">
                             <CardContent>
@@ -119,7 +119,7 @@ export default function DataComponent() {
                           </Card>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={8}>
+                    <Grid item xs={12} sm={9}>
                         <Paper className={classes.paper}>
                           <Llamadas data={data} />
                         </Paper>
