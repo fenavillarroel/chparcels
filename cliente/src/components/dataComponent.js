@@ -12,6 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import moment from 'moment';
 import Llamadas from './tableComponent';
 import NavBar from './NavBar';
+import { CSVLink, CSVDownload } from "react-csv";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -22,6 +23,12 @@ const useStyles = makeStyles((theme) => ({
       textAlign: 'center',
       color: theme.palette.text.secondary,
       fontSize:8
+    },
+    paper1: {
+      padding: theme.spacing(2),
+      textAlign: 'left',
+      color: theme.palette.text.secondary,
+      fontSize:15
     },
     table: {
       fontSize: 80,
@@ -86,7 +93,7 @@ export default function DataComponent() {
                                       id="desde"
                                       label="Fecha Desde"
                                       type="date"
-                                      defaultValue={now}
+                                      defaultValue= {moment(now).format('YYYY-mm-dd')}
                                       onInput= {(e) => setfechaStart(moment(e.target.value).format('YYYY-MM-DD 00:00:00'))}
                                       className={classes.textField}
                                       InputLabelProps={{
@@ -122,6 +129,17 @@ export default function DataComponent() {
                     <Grid item xs={12} sm={9}>
                         <Paper className={classes.paper}>
                           <Llamadas data={data} />
+                        </Paper>
+                        <Paper className={classes.paper1}>
+                        <CSVLink
+                          data={data}
+                          filename={"my-file.csv"}
+                          className="btn btn-primary"
+                          target="_blank"
+                        >
+                          EXPORT CSV
+                        </CSVLink>
+
                         </Paper>
                     </Grid>
                 </Grid>
