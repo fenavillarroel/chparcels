@@ -45,8 +45,10 @@ export default function DataComponent() {
     const [fechaStart,setfechaStart] = useState(inicio);
     const [fechaEnd,setfechaEnd] = useState(fin);
     const [data, Setdatos] = useState([]);
-   
-    const url = '/api/v1/allcalls';
+  
+    //URL Producción Chileparcels	
+    //const url = 'http://192.168.10.7:5000/api/v1/allcalls';
+    const url = 'http://localhost:5000/api/v1/allcalls';
     const options = {
       method: 'POST',
       headers: {
