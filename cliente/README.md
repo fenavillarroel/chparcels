@@ -1,68 +1,120 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Flask & React Chileparcels 
+Este proyecto soluciona la API para consultar las llamadas y audios generados por su call center.  
+Este proyecto es instalado y probado en Debian 9.
 
-## Available Scripts
+### Dependencias.
+Nodejs LTS Release
 
-In the project directory, you can run:
+```
+sudo apt-get install curl software-properties-common
+curl -sL https://deb.nodesource.com/setup_12.x | sudo bash -
 
-### `yarn start`
+sudo apt-get install nodejs
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+$node -v
+$npm -v
+```
+Postgresql
+```
+sudo apt-get install postgresql libpq-dev nginx ufw
+```
+Python
+```
+sudo apt-get install python3-dev python3-pip
+```
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+#### Clone Project, install and build packages
 
-### `yarn test`
+### FrontEnd
+cd ~  
+git clone https://github.com/fenavillarroel/chparcels.git -b develop  
+cd chparcels/cliente  
+npm install  
+change dataComponent.js  
+//const url = 'http://192.168.10.7:5000/api/v1/allcalls';  
+npm run build  
+cp -a build /var/www/html
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `yarn build`
+### BackEnd
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+cd ~/chparcels/cliente/backend  
+python -m venv env  
+source env/bin/activate  
+pip3 install -r requirements.txt  
+Test gunicorn    
+gunicorn --bind 0.0.0.0:5000 wsgi:app  
+deactivate
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+### Deploy Frontend & Backend  
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Change /etc/nginx/sites-enabled/default like  
+root /var/www/html/build;  
 
-### `yarn eject`
+Create a systemd Unit File  
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+sudo nano /etc/systemd/system/app.service  
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+[Unit]
+#  specifies metadata and dependencies
+Description=Gunicorn instance to serve myproject
+After=network.target
+# tells the init system to only start this after the networking target has been reached
+# We will give our regular user account ownership of the process since it owns all of the relevant files
+[Service]
+# Service specify the user and group under which our process will run.
+User=fernando
+# give group ownership to the www-data group so that Nginx can communicate easily with the Gunicorn processes.
+Group=www-data
+# We'll then map out the working directory and set the PATH environmental variable so that the init system knows where our th$
+WorkingDirectory=/home/fernando/chparcels/cliente/backend
+Environment="PATH=/home/fernando/chparcels/cliente/backend/env/bin"
+# We'll then specify the commanded to start the service
+ExecStart=/home/fernando/chparcels/cliente/backend/env/bin/gunicorn --workers 3 --bind unix:app.sock -m 007 wsgi:app
+# This will tell systemd what to link this service to if we enable it to start at boot. We want this service to start when th$
+[Install]
+WantedBy=multi-user.target
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```
+sudo systemctl start app  
+sudo systemctl enable app  
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+sudo nano /etc/nginx/sites-available/app  
 
-## Learn More
+```
+server {
+    listen 80;
+    server_name server_domain_or_IP;
+}
+```
+Or we’ll include the proxy_params  
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+server {
+    listen 80;
+    server_name server_domain_or_IP;
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+location / {
+  include proxy_params;
+  proxy_pass http://unix:/home/tasnuva/work/deployment/src/app.sock;
+    }
+}
+```
 
-### Code Splitting
+sudo ln -s /etc/nginx/sites-available/app /etc/nginx/sites-enabled  
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+sudo systemctl restart nginx  
+sudo ufw allow 'Nginx Full'
 
-### Analyzing the Bundle Size
+http://server_domain_or_IP  
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+Congratulations!! Your deployment is done!
 
-### Making a Progressive Web App
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+#### References:  
+https://medium.com/faun/deploy-flask-app-with-nginx-using-gunicorn-7fda4f50066a  
 
-### Advanced Configuration
+https://tecadmin.net/install-latest-nodejs-npm-on-debian/  
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+https://medium.com/@timmykko/deploying-create-react-app-with-nginx-and-ubuntu-e6fe83c5e9e7  
